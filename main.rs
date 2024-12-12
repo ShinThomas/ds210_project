@@ -59,16 +59,16 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("Node: {}, Neighbors: {:?}", node, neighbors);
     }
 
-    // Perform degree distribution analysis
+    // Degree distribution analysis
     let degree_distribution = calculate_degree_distribution(&graph.nodes); // Pass graph.nodes
     print_degree_distribution(&degree_distribution);
 
-    // Optionally save degree distribution to file
+    // Save degree distribution to file
     let output_file = "degree_distribution.csv";
     save_degree_distribution_to_file(&degree_distribution, output_file)?;
     println!("\nDegree distribution saved to {}", output_file);
 
-    // Perform centrality analysis
+    // Centrality analysis
     println!("\nCentrality Measures:");
     let centrality_measures = calculate_centrality_measures(&graph.nodes); // Pass graph.nodes
     for (node, centrality) in centrality_measures {
