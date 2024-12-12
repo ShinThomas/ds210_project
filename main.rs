@@ -7,7 +7,7 @@ use std::error::Error;
 use std::fs::File;
 use serde::Deserialize;
 use graph::Graph;
-use analysis::{calculate_degree_distribution, calculate_centrality_measures, print_degree_distribution, save_degree_distribution_to_file, fit_power_law, ks_test};
+use analysis::{calculate_degree_distribution, calculate_centrality_measures, print_degree_distribution, save_degree_distribution_to_file, find_most_similar_dissimilar_nodes};
 use stats::{calculate_salary_correlation, calculate_salary_distribution, calculate_salary_by_location};
 
 #[derive(Debug, Deserialize)]
@@ -68,14 +68,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     save_degree_distribution_to_file(&degree_distribution, output_file)?;
     println!("\nDegree distribution saved to {}", output_file);
 
-    // Fit degree distribution to power-law
-    let alpha = fit_power_law(&degree_distribution);
-    println!("\nPower Law Exponent (alpha): {:.4}", alpha);
-
-    // Perform Kolmogorov-Smirnov test for power-law fit
-    let ks_stat = ks_test(&degree_distribution, alpha);
-    println!("\nKolmogorov-Smirnov Statistic: {:.4}", ks_stat);
-
     // Perform centrality analysis
     println!("\nCentrality Measures:");
     let centrality_measures = calculate_centrality_measures(&graph.nodes); // Pass graph.nodes
@@ -83,20 +75,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("Node: {}, Centrality: {:.2}", node, centrality);
     }
 
-    // Perform salary correlation analysis
-    println!("\nSalary Correlation with Experience, Remote Ratio, and Company Size:");
-    let salary_correlation = calculate_salary_correlation(&records);
-    println!("{:?}", salary_correlation);
+    // Find most similar and most dissimilar nodes based on Jaccard similarity
+    let (most_similar, most_dissimilar) = find_most_similar_dissimilar_nodes(&graph.nodes);
 
-    // Perform salary distribution by job title
-    println!("\nSalary Distribution by Job Title:");
-    let salary_distribution = calculate_salary_distribution(&records);
-    println!("{:?}", salary_distribution);
-
-    // Perform salary distribution by location
-    println!("\nSalary Distribution by Location:");
-    let salary_by_location = calculate_salary_by_location(&records);
-    println!("{:?}", salary_by_location);
+    println!("\nMost Similar Nodes: {} and {}, Similarity: {:.4}", most_similar.0, most_similar.1, most_similar.2);
+    println!("Most Dissimilar Nodes: {} and {}, Similarity: {:.4}", most_dissimilar.0, most_dissimilar.1, most_dissimilar.2);
 
     Ok(())
 }
