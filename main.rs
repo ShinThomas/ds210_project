@@ -1,3 +1,4 @@
+mod stats;
 mod graph;
 mod analysis;
 
@@ -6,7 +7,8 @@ use std::error::Error;
 use std::fs::File;
 use serde::Deserialize;
 use graph::Graph;
-use analysis::{calculate_degree_distribution, calculate_centrality_measures, print_degree_distribution, save_degree_distribution_to_file};
+use analysis::{calculate_degree_distribution, calculate_centrality_measures, print_degree_distribution, save_degree_distribution_to_file, fit_power_law, ks_test};
+use stats::{calculate_salary_correlation, calculate_salary_distribution, calculate_salary_by_location};
 
 #[derive(Debug, Deserialize)]
 struct Record {
@@ -66,12 +68,35 @@ fn main() -> Result<(), Box<dyn Error>> {
     save_degree_distribution_to_file(&degree_distribution, output_file)?;
     println!("\nDegree distribution saved to {}", output_file);
 
+    // Fit degree distribution to power-law
+    let alpha = fit_power_law(&degree_distribution);
+    println!("\nPower Law Exponent (alpha): {:.4}", alpha);
+
+    // Perform Kolmogorov-Smirnov test for power-law fit
+    let ks_stat = ks_test(&degree_distribution, alpha);
+    println!("\nKolmogorov-Smirnov Statistic: {:.4}", ks_stat);
+
     // Perform centrality analysis
     println!("\nCentrality Measures:");
     let centrality_measures = calculate_centrality_measures(&graph.nodes); // Pass graph.nodes
     for (node, centrality) in centrality_measures {
         println!("Node: {}, Centrality: {:.2}", node, centrality);
     }
+
+    // Perform salary correlation analysis
+    println!("\nSalary Correlation with Experience, Remote Ratio, and Company Size:");
+    let salary_correlation = calculate_salary_correlation(&records);
+    println!("{:?}", salary_correlation);
+
+    // Perform salary distribution by job title
+    println!("\nSalary Distribution by Job Title:");
+    let salary_distribution = calculate_salary_distribution(&records);
+    println!("{:?}", salary_distribution);
+
+    // Perform salary distribution by location
+    println!("\nSalary Distribution by Location:");
+    let salary_by_location = calculate_salary_by_location(&records);
+    println!("{:?}", salary_by_location);
 
     Ok(())
 }
