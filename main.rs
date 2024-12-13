@@ -1,31 +1,17 @@
 mod stats;
 mod graph;
 mod analysis;
+mod models;
+
+use ds_project::{Graph, Record};
 
 use csv::ReaderBuilder;
 use std::error::Error;
 use std::fs::File;
-use serde::Deserialize;
-use graph::Graph;
-use analysis::{calculate_degree_distribution, calculate_centrality_measures, print_degree_distribution, save_degree_distribution_to_file, find_most_similar_dissimilar_nodes};
-use stats::{calculate_salary_correlation, calculate_salary_distribution, calculate_salary_by_location};
 
-#[derive(Debug, Deserialize)]
-struct Record {
-    work_year: u32,
-    experience_level: String,
-    employment_type: String,
-    job_title: String,
-    salary: f64,
-    salary_currency: String,
-    salary_in_usd: f64,
-    employee_residence: String,
-    remote_ratio: u32,
-    company_location: String,
-    company_size: String,
-}
+use analysis::{calculate_degree_distribution, print_degree_distribution, save_degree_distribution_to_file, find_most_similar_dissimilar_nodes};
 
-fn read_csv(file_path: &str) -> Result<Vec<Record>, Box<dyn Error>> {
+pub fn read_csv(file_path: &str) -> Result<Vec<Record>, Box<dyn Error>> {
     let file = File::open(file_path)?;
     let mut rdr = ReaderBuilder::new().has_headers(true).from_reader(file);
     let mut records = Vec::new();
@@ -39,7 +25,6 @@ fn read_csv(file_path: &str) -> Result<Vec<Record>, Box<dyn Error>> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    // Load dataset
     let file_path = "ds_salaries.csv";
     let records = read_csv(file_path)?;
 
@@ -60,20 +45,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     // Degree distribution analysis
-    let degree_distribution = calculate_degree_distribution(&graph.nodes); // Pass graph.nodes
+    let degree_distribution = calculate_degree_distribution(&graph.nodes);
     print_degree_distribution(&degree_distribution);
 
     // Save degree distribution to file
     let output_file = "degree_distribution.csv";
     save_degree_distribution_to_file(&degree_distribution, output_file)?;
     println!("\nDegree distribution saved to {}", output_file);
-
-    // Centrality analysis
-    println!("\nCentrality Measures:");
-    let centrality_measures = calculate_centrality_measures(&graph.nodes); // Pass graph.nodes
-    for (node, centrality) in centrality_measures {
-        println!("Node: {}, Centrality: {:.2}", node, centrality);
-    }
 
     // Find most similar and most dissimilar nodes based on Jaccard similarity
     let (most_similar, most_dissimilar) = find_most_similar_dissimilar_nodes(&graph.nodes);

@@ -18,7 +18,4 @@ impl Graph {
             .push(node2.to_string());
     }
 
-    pub fn get_neighbors(&self, node: &str) -> Option<&Vec<String>> {
-        self.nodes.get(node)
-    }
 }

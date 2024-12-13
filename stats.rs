@@ -1,17 +1,5 @@
-use crate::Record; // Import the Record from main.rs
-use ndarray::Array2;
+use crate::Record;
 use std::collections::HashMap;
-
-// Function to calculate salary correlation
-pub fn calculate_salary_correlation(records: &[Record]) -> Array2<f64> {
-    let mut correlation_matrix = Array2::<f64>::zeros((3, 3));
-
-    correlation_matrix[[0, 0]] = 1.0;
-    correlation_matrix[[0, 1]] = 0.5; 
-    correlation_matrix[[0, 2]] = 0.3;
-
-    correlation_matrix
-}
 
 // Function to calculate salary distribution by job title
 pub fn calculate_salary_distribution(records: &[Record]) -> HashMap<String, Vec<f64>> {
